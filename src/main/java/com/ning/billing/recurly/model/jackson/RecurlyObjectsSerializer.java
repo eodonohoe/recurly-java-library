@@ -40,26 +40,30 @@ public class RecurlyObjectsSerializer<T extends RecurlyObjects<U>, U extends Rec
     }
 
     @Override
-    public void serialize(final T values, final JsonGenerator jgen, final SerializerProvider provider) throws IOException {
+    public void serialize(final T values, JsonGenerator jgen, SerializerProvider provider) throws IOException {
         if (values.isEmpty()) {
             jgen.writeStartArray();
             jgen.writeEndArray();
             return;
         }
 
-        final ToXmlGenerator xmlgen = (ToXmlGenerator) jgen;
+        final JsonGenerator jsonGenerator = jgen; // Cast as JsonGenerator instead of ToXmlGenerator to prevent crash
         // Nested RecurlyObjects
-        ((JsonWriteContext)xmlgen.getOutputContext()).writeFieldName(elementName);
+        if (jsonGenerator.getOutputContext() instanceof JsonWriteContext) {
+            ((JsonWriteContext) jsonGenerator.getOutputContext()).writeFieldName(elementName);
+        }
         boolean firstValue = true;
         for (final U value : values) {
             if (firstValue) {
-                xmlgen.setNextName(new QName(null, elementName));
+                if (jgen instanceof ToXmlGenerator) {
+                    ((ToXmlGenerator) jsonGenerator).setNextName(new QName(null, elementName));
+                }
             } else {
-                xmlgen.writeFieldName(elementName);
+                jsonGenerator.writeFieldName(elementName);
             }
             firstValue = false;
 
-            xmlgen.writeObject(value);
+            jsonGenerator.writeObject(value);
         }
     }
 }
