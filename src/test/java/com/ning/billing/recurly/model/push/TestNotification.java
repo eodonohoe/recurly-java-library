@@ -17,6 +17,7 @@
 
 package com.ning.billing.recurly.model.push;
 
+import com.ning.billing.recurly.model.push.account.*;
 import com.ning.billing.recurly.model.push.invoice.*;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -27,10 +28,6 @@ import org.testng.annotations.Test;
 import com.ning.billing.recurly.model.Account;
 import com.ning.billing.recurly.model.Plan;
 import com.ning.billing.recurly.model.TestModelBase;
-import com.ning.billing.recurly.model.push.account.AccountNotification;
-import com.ning.billing.recurly.model.push.account.BillingInfoUpdatedNotification;
-import com.ning.billing.recurly.model.push.account.CanceledAccountNotification;
-import com.ning.billing.recurly.model.push.account.NewAccountNotification;
 import com.ning.billing.recurly.model.push.payment.FailedPaymentNotification;
 import com.ning.billing.recurly.model.push.payment.PaymentNotification;
 import com.ning.billing.recurly.model.push.payment.PushTransaction;
@@ -71,14 +68,14 @@ public class TestNotification extends TestModelBase {
                                                    "  <state>active</state>\n" +
                                                    "  <quantity type=\"integer\">1</quantity>\n" +
                                                    "  <total_amount_in_cents type=\"integer\">200</total_amount_in_cents>\n" +
-                                                   "  <activated_at type=\"datetime\">2010-09-23T22:12:39Z</activated_at>\n" +
+                                                   "  <activated_at type=\"dateTime\">2010-09-23T22:12:39Z</activated_at>\n" +
                                                    "  <canceled_at nil=\"true\"></canceled_at>\n" +
                                                    "  <expires_at nil=\"true\"></expires_at>\n" +
-                                                   "  <current_period_started_at type=\"datetime\">2010-09-23T22:03:30Z</current_period_started_at>\n" +
-                                                   "  <current_period_ends_at type=\"datetime\">2010-09-24T22:03:30Z</current_period_ends_at>\n" +
-                                                   "  <trial_started_at nil=\"true\" type=\"datetime\"></trial_started_at>\n" +
-                                                   "  <trial_ends_at nil=\"true\" type=\"datetime\"></trial_ends_at>\n" +
-                                                   "  <starts_at type=\"datetime\">2010-09-23T07:00:00Z</starts_at>\n" +
+                                                   "  <current_period_started_at type=\"dateTime\">2010-09-23T22:03:30Z</current_period_started_at>\n" +
+                                                   "  <current_period_ends_at type=\"dateTime\">2010-09-24T22:03:30Z</current_period_ends_at>\n" +
+                                                   "  <trial_started_at nil=\"true\" type=\"dateTime\"></trial_started_at>\n" +
+                                                   "  <trial_ends_at nil=\"true\" type=\"dateTime\"></trial_ends_at>\n" +
+                                                   "  <starts_at type=\"dateTime\">2010-09-23T07:00:00Z</starts_at>\n" +
                                                    "</subscription>";
 
     private static final String TRANSACTIONDATA = "<transaction>\n" +
@@ -87,10 +84,12 @@ public class TestNotification extends TestModelBase {
                                                   "  <invoice_number type=\"integer\">2059</invoice_number>\n" +
                                                   "  <subscription_id>1974a098jhlkjasdfljkha898326881c</subscription_id>\n" +
                                                   "  <action>purchase</action>\n" +
-                                                  "  <date type=\"datetime\">2009-11-22T13:10:38Z</date>\n" +
+                                                  "  <date type=\"dateTime\">2009-11-22T13:10:38Z</date>\n" +
                                                   "  <amount_in_cents type=\"integer\">1000</amount_in_cents>\n" +
                                                   "  <status>Success</status>\n" +
                                                   "  <message>Bogus Gateway: Forced success</message>\n" +
+                                                  "  <gateway_error_codes>00</gateway_error_codes>\n" +
+                                                  "  <failure_type>Declined by the gateway</failure_type>\n" +
                                                   "  <reference></reference>\n" +
                                                   "  <cvv_result code=\"\"></cvv_result>\n" +
                                                   "  <avs_result code=\"D\">Street address and postal code match.</avs_result>\n" +
@@ -112,8 +111,8 @@ public class TestNotification extends TestModelBase {
                                               "  <vat_number></vat_number>\n" +
                                               "  <total_in_cents type=\"integer\">1100</total_in_cents>\n" +
                                               "  <currency>USD</currency>\n" +
-                                              "  <date type=\"datetime\">2014-01-01T20:20:29Z</date>\n" +
-                                              "  <closed_at type=\"datetime\">2014-01-01T20:24:02Z</closed_at>\n" +
+                                              "  <date type=\"dateTime\">2014-01-01T20:20:29Z</date>\n" +
+                                              "  <closed_at type=\"dateTime\">2014-01-01T20:24:02Z</closed_at>\n" +
                                               "  <net_terms type=\"integer\">0</net_terms>\n" +
                                               "  <collection_method>automatic</collection_method>\n" +
                                               "</invoice>";
@@ -217,6 +216,8 @@ public class TestNotification extends TestModelBase {
         Assert.assertEquals(transaction.getAmountInCents(), new Integer(1000));
         Assert.assertEquals(transaction.getStatus(), "Success");
         Assert.assertEquals(transaction.getMessage(), "Bogus Gateway: Forced success");
+        Assert.assertEquals(transaction.getFailureType(), "Declined by the gateway");
+        Assert.assertEquals(transaction.getGatewayErrorCodes(), "00");
         Assert.assertNull(transaction.getReference());
         Assert.assertTrue(transaction.getTest());
         Assert.assertTrue(transaction.getRefundable());
@@ -263,6 +264,9 @@ public class TestNotification extends TestModelBase {
     public void testCanceledAccountNotification() {
         deserialize(CanceledAccountNotification.class);
     }
+
+    @Test(groups = "fast")
+    public void testUpdatedAccountNotification() { deserialize(UpdatedAccountNotification.class); }
 
     @Test(groups = "fast")
     public void testBillingInfoUpdatedNotification() {

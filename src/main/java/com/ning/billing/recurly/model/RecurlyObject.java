@@ -17,23 +17,9 @@
 
 package com.ning.billing.recurly.model;
 
-import java.math.BigDecimal;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-
-import javax.annotation.Nullable;
-import javax.xml.bind.annotation.XmlTransient;
-
-import com.fasterxml.jackson.annotation.JsonInclude;
-import org.joda.time.DateTime;
-
-import com.ning.billing.recurly.RecurlyClient;
-import com.ning.billing.recurly.model.jackson.RecurlyObjectsSerializer;
-import com.ning.billing.recurly.model.jackson.RecurlyXmlSerializerProvider;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.databind.AnnotationIntrospector;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -44,6 +30,18 @@ import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.fasterxml.jackson.datatype.joda.JodaModule;
 import com.fasterxml.jackson.module.jaxb.JaxbAnnotationIntrospector;
+import com.fasterxml.jackson.module.jaxb.JaxbAnnotationModule;
+import com.ning.billing.recurly.RecurlyClient;
+import com.ning.billing.recurly.model.jackson.RecurlyObjectsSerializer;
+import com.ning.billing.recurly.model.jackson.RecurlyXmlSerializerProvider;
+import org.joda.time.DateTime;
+
+import javax.annotation.Nullable;
+import javax.xml.bind.annotation.XmlTransient;
+import java.math.BigDecimal;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public abstract class RecurlyObject {
@@ -78,6 +76,7 @@ public abstract class RecurlyObject {
         xmlMapper.registerModule(new JodaModule());
         xmlMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
         xmlMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+        xmlMapper.registerModule(new JaxbAnnotationModule());
 
         final SimpleModule m = new SimpleModule("module", new Version(1, 0, 0, null, null, null));
         m.addSerializer(Accounts.class, new RecurlyObjectsSerializer<Accounts, Account>(Accounts.class, "account"));
@@ -105,7 +104,7 @@ public abstract class RecurlyObject {
         // will interpret as an Object (Map), not Booleans.
         if (object instanceof Map) {
             final Map map = (Map) object;
-            if (map.keySet().size() == 2 && "boolean".equals(map.get("type"))) {
+            if (map.keySet().size() == 2 && "boolean".equalsIgnoreCase((String) map.get("type"))) {
                 return Boolean.valueOf((String) map.get(""));
             }
         }
@@ -122,14 +121,25 @@ public abstract class RecurlyObject {
     }
 
     @SuppressWarnings("unchecked")
-    public static <E extends Enum<E>> E enumOrNull(Class<E> enumClass, @Nullable final Object object) {
+    public static <E extends Enum<E>> E enumOrNull(Class<E> enumClass, @Nullable final Object object, final Boolean upCase) {
         if (isNull(object)) {
             return null;
         } else if (enumClass.isAssignableFrom(object.getClass())) {
             return (E) object;
         }
 
-        return (E) Enum.valueOf(enumClass, object.toString().trim());
+        String value =  object.toString().trim();
+
+        if (upCase) {
+            value = value.toUpperCase();
+        }
+
+        return (E) Enum.valueOf(enumClass, value);
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <E extends Enum<E>> E enumOrNull(Class<E> enumClass, @Nullable final Object object) {
+        return enumOrNull(enumClass, object, false);
     }
 
     public static Integer integerOrNull(@Nullable final Object object) {
@@ -141,7 +151,7 @@ public abstract class RecurlyObject {
         // will interpret as an Object (Map), not Integers.
         if (object instanceof Map) {
             final Map map = (Map) object;
-            if (map.keySet().size() == 2 && "integer".equals(map.get("type"))) {
+            if (map.keySet().size() == 2 && "integer".equalsIgnoreCase((String) map.get("type"))) {
                 return Integer.valueOf((String) map.get(""));
             }
         }
@@ -158,7 +168,7 @@ public abstract class RecurlyObject {
         // will interpret as an Object (Map), not Longs.
         if (object instanceof Map) {
             final Map map = (Map) object;
-            if (map.keySet().size() == 2 && "integer".equals(map.get("type"))) {
+            if (map.keySet().size() == 2 && "integer".equalsIgnoreCase((String) map.get("type"))) {
                 return Long.valueOf((String) map.get(""));
             }
         }
@@ -175,7 +185,7 @@ public abstract class RecurlyObject {
         // will interpret as an Object (Map), not Longs.
         if (object instanceof Map) {
             final Map map = (Map) object;
-            if (map.keySet().size() == 2 && "float".equals(map.get("type"))) {
+            if (map.keySet().size() == 2 && "float".equalsIgnoreCase((String) map.get("type"))) {
                 return new BigDecimal((String) map.get(""));
             }
         }
@@ -188,11 +198,11 @@ public abstract class RecurlyObject {
             return null;
         }
 
-        // DateTimes are represented as objects (e.g. <created_at type="datetime">2011-04-19T07:00:00Z</created_at>), which Jackson
+        // DateTimes are represented as objects (e.g. <created_at type="dateTime">2011-04-19T07:00:00Z</created_at>), which Jackson
         // will interpret as an Object (Map), not DateTimes.
         if (object instanceof Map) {
             final Map map = (Map) object;
-            if (map.keySet().size() == 2 && "datetime".equals(map.get("type"))) {
+            if (map.keySet().size() == 2 && "dateTime".equalsIgnoreCase((String) map.get("type"))) {
                 return new DateTime(map.get(""));
             }
         }

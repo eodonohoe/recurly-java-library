@@ -14,21 +14,12 @@
  * License for the specific language governing permissions and limitations
  * under the License.
  */
+
 package com.ning.billing.recurly.model;
 
-import javax.xml.bind.annotation.XmlEnum;
-import javax.xml.bind.annotation.XmlEnumValue;
-
-@XmlEnum(String.class)
-public enum RevenueScheduleType {
-    @XmlEnumValue("never")
-    NEVER,
-    @XmlEnumValue("evenly")
-    EVENLY,
-    @XmlEnumValue("at_invoice")
-    AT_INVOICE,
-    @XmlEnumValue("at_range_end")
-    AT_RANGE_END,
-    @XmlEnumValue("at_range_start")
-    AT_RANGE_START
+/**
+ * The order in which to apply an invoice refund
+ */
+public enum RefundMethod {
+    transaction_first, credit_first
 }

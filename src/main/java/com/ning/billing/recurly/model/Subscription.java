@@ -17,15 +17,13 @@
 
 package com.ning.billing.recurly.model;
 
+import com.google.common.base.Objects;
+import org.joda.time.DateTime;
+
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlList;
 import javax.xml.bind.annotation.XmlRootElement;
-
-import org.joda.time.DateTime;
-
-import com.google.common.base.Objects;
-
 import java.math.BigDecimal;
 import java.util.List;
 
@@ -141,6 +139,18 @@ public class Subscription extends AbstractSubscription {
 
     @XmlElement(name = "shipping_address_id")
     private Long shippingAddressId;
+
+    @XmlElement(name = "no_billing_info_reason")
+    private String noBillingInfoReason;
+
+    @XmlElement(name = "imported_trial")
+    private Boolean importedTrial;
+
+    @XmlElement(name = "credit_customer_notes")
+    private String creditCustomerNotes;
+
+    @XmlElement(name = "invoice_collection")
+    private InvoiceCollection invoiceCollection;
 
     public Account getAccount() {
         if (account != null && account.getHref() != null && !account.getHref().isEmpty()) {
@@ -352,6 +362,10 @@ public class Subscription extends AbstractSubscription {
         this.firstRenewalDate = dateTimeOrNull(firstRenewalDate);
     }
 
+    public String getCouponCode() {
+        return couponCode;
+    }
+
     public void setCouponCode(final String couponCode) {
         this.couponCode = couponCode;
     }
@@ -372,10 +386,8 @@ public class Subscription extends AbstractSubscription {
         return revenueScheduleType;
     }
 
-    public void setRevenueScheduleType(final String revenueScheduleType) {
-        if (revenueScheduleType != null) {
-            this.revenueScheduleType = RevenueScheduleType.valueOf(revenueScheduleType.toUpperCase());
-        }
+    public void setRevenueScheduleType(final Object revenueScheduleType) {
+        this.revenueScheduleType = enumOrNull(RevenueScheduleType.class, revenueScheduleType, true);
     }
 
     public GiftCard getGiftCard() {
@@ -422,6 +434,39 @@ public class Subscription extends AbstractSubscription {
         this.convertedAt = dateTimeOrNull(convertedAt);
     }
 
+    public String getNoBillingInfoReason() {
+        return this.noBillingInfoReason;
+    }
+
+    public void setNoBillingInfoReason(final Object noBillingInfoReason) {
+        this.noBillingInfoReason = stringOrNull(noBillingInfoReason);
+    }
+
+    public Boolean getImportedTrial() {
+        return this.importedTrial;
+    }
+
+    public void setImportedTrial(final Object importedTrial) {
+        this.importedTrial = booleanOrNull(importedTrial);
+    }
+
+
+    public String getCreditCustomerNotes() {
+        return creditCustomerNotes;
+    }
+
+    public void setCreditCustomerNotes(final Object creditCustomerNotes) {
+        this.creditCustomerNotes = stringOrNull(creditCustomerNotes);
+    }
+
+    public InvoiceCollection getInvoiceCollection() {
+        return invoiceCollection;
+    }
+
+    public void setInvoiceCollection(final InvoiceCollection invoiceCollection) {
+        this.invoiceCollection = invoiceCollection;
+    }
+
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder();
@@ -459,6 +504,10 @@ public class Subscription extends AbstractSubscription {
         sb.append(", shippingAddressId=").append(shippingAddressId);
         sb.append(", startedWithGift=").append(startedWithGift);
         sb.append(", convertedAt=").append(convertedAt);
+        sb.append(", noBillingInfoReason=").append(noBillingInfoReason);
+        sb.append(", importedTrial=").append(importedTrial);
+        sb.append(", creditCustomerNotes=").append(creditCustomerNotes);
+        sb.append(", invoiceCollection=").append(invoiceCollection);
         sb.append('}');
         return sb.toString();
     }
@@ -498,6 +547,9 @@ public class Subscription extends AbstractSubscription {
             return false;
         }
         if (expiresAt != null ? expiresAt.compareTo(that.expiresAt) != 0 : that.expiresAt != null) {
+            return false;
+        }
+        if (importedTrial != null ? !importedTrial.equals(that.importedTrial) : that.importedTrial != null) {
             return false;
         }
         if (remainingBillingCycles != null ? !remainingBillingCycles.equals(that.remainingBillingCycles) : that.remainingBillingCycles != null) {
@@ -572,6 +624,15 @@ public class Subscription extends AbstractSubscription {
         if (shippingAddressId != null ? !shippingAddressId.equals(that.shippingAddressId) : that.shippingAddressId != null) {
             return false;
         }
+        if (noBillingInfoReason != null ? !noBillingInfoReason.equals(that.noBillingInfoReason) : that.noBillingInfoReason != null) {
+            return false;
+        }
+        if (creditCustomerNotes != null ? !creditCustomerNotes.equals(that.creditCustomerNotes) : that.creditCustomerNotes != null) {
+            return false;
+        }
+        if (invoiceCollection != null ? !invoiceCollection.equals(that.invoiceCollection) : that.invoiceCollection != null) {
+            return false;
+        }
 
         return true;
     }
@@ -612,8 +673,10 @@ public class Subscription extends AbstractSubscription {
                 couponCode,
                 couponCodes,
                 convertedAt,
-                startedWithGift
+                startedWithGift,
+                noBillingInfoReason,
+                importedTrial,
+                invoiceCollection
         );
     }
-
 }

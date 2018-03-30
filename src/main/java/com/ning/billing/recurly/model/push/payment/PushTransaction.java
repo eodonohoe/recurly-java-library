@@ -45,6 +45,9 @@ public class PushTransaction extends AbstractTransaction {
     @XmlElement
     private String message;
 
+    @XmlElement(name = "gateway_error_codes")
+    private String gatewayErrorCodes;
+
     public String getId() {
         return id;
     }
@@ -93,7 +96,13 @@ public class PushTransaction extends AbstractTransaction {
         this.message = stringOrNull(message);
     }
 
+    public String getGatewayErrorCodes() {
+        return gatewayErrorCodes;
+    }
 
+    public void setGatewayErrorCodes(final Object gatewayErrorCodes) {
+        this.gatewayErrorCodes = stringOrNull(gatewayErrorCodes);
+    }
 
     @Override
     public boolean equals(final Object o) {

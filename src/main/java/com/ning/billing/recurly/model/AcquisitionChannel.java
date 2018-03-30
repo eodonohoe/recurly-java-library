@@ -19,16 +19,33 @@ package com.ning.billing.recurly.model;
 import javax.xml.bind.annotation.XmlEnum;
 import javax.xml.bind.annotation.XmlEnumValue;
 
+// see AccountAcquisition docs: https://dev.recurly.com/docs/create-account-acquisition
 @XmlEnum(String.class)
-public enum RevenueScheduleType {
-    @XmlEnumValue("never")
-    NEVER,
-    @XmlEnumValue("evenly")
-    EVENLY,
-    @XmlEnumValue("at_invoice")
-    AT_INVOICE,
-    @XmlEnumValue("at_range_end")
-    AT_RANGE_END,
-    @XmlEnumValue("at_range_start")
-    AT_RANGE_START
+public enum AcquisitionChannel {
+    @XmlEnumValue("referral")
+    REFERAL,
+    @XmlEnumValue("social_media")
+    SOCIAL_MEDIA,
+    @XmlEnumValue("email")
+    EMAIL,
+    @XmlEnumValue("paid_search")
+    PAID_SEARCH,
+    @XmlEnumValue("organic_search")
+    ORGANIC_SEARCH,
+    @XmlEnumValue("direct_traffic")
+    DIRECT_TRAFFIC,
+    @XmlEnumValue("marketing_content")
+    MARKETING_CONTENT,
+    @XmlEnumValue("blog")
+    BLOG,
+    @XmlEnumValue("events")
+    EVENTS,
+    @XmlEnumValue("outbound_sales")
+    OUTBOUND_SALES,
+    @XmlEnumValue("advertising")
+    ADVERTISING,
+    @XmlEnumValue("public_relations")
+    PUBLIC_RELATIONS,
+    @XmlEnumValue("other")
+    OTHER;
 }
